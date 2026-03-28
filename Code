@@ -1,0 +1,116 @@
+#include<LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27,16,2);
+
+#define sw 12
+int sense;
+
+#define buzzer 14
+
+#define r 4
+#define y 5
+#define g 6
+
+#include<Servo.h>
+Servo servo;
+
+int a=0;
+
+void setup()
+{
+  Serial.begin(9600);
+
+  pinMode(sw,INPUT_PULLUP);
+  
+  pinMode(buzzer,OUTPUT);
+  digitalWrite(buzzer,LOW);
+
+  pinMode(r,OUTPUT);
+  pinMode(y,OUTPUT);
+  pinMode(g,OUTPUT);
+  digitalWrite(r,HIGH);
+  digitalWrite(y,LOW);
+  digitalWrite(g,LOW);
+
+  pinMode(13,OUTPUT);
+  digitalWrite(13,LOW);
+
+  lcd.init();
+  lcd.backlight();
+
+  servo.attach(15);
+  delay(500);
+  servo.write(0);
+  delay(500);
+}
+void loop()
+{
+  sense=digitalRead(sw);
+  sense=1-sense;
+
+  if(sense==1 && a==1)
+  {
+    a=0;
+    open_gate();
+  }
+  else if(sense==0 && a==0)
+  {
+    a=1;
+    close_gate();
+  }
+  
+  lcd.clear();
+  lcd.print("   WELCOME TO   ");
+  lcd.setCursor(0,1);
+  lcd.print(" INDIAN RAILWAY ");
+  digitalWrite(13,HIGH);delay(200);digitalWrite(13,LOW);delay(100);
+}
+void open_gate()
+{
+  lcd.clear();
+  lcd.print("CLOSING PLATFORM");
+  delay(1000);
+
+  for(int i=0; i<=60; i=i+10)
+  {
+    digitalWrite(r,LOW);
+    digitalWrite(y,HIGH);
+    digitalWrite(g,LOW);
+    digitalWrite(buzzer,HIGH);
+    servo.write(i);
+    delay(500);
+    digitalWrite(r,HIGH);
+    digitalWrite(y,LOW);
+    digitalWrite(g,LOW);
+    digitalWrite(buzzer,LOW);
+    delay(500);
+  }
+
+  lcd.clear();
+  lcd.print(" HAPPY  JOURNEY ");
+  delay(1500);
+}
+void close_gate()
+{
+  lcd.clear();
+  lcd.print("OPENING PLATFORM");
+  delay(1000);
+
+  for(int i=60; i>=0; i=i-10)
+  {
+    digitalWrite(r,LOW);
+    digitalWrite(y,HIGH);
+    digitalWrite(g,LOW);
+    digitalWrite(buzzer,HIGH);
+    servo.write(i);
+    delay(500);
+    digitalWrite(r,LOW);
+    digitalWrite(y,LOW);
+    digitalWrite(g,HIGH);
+    digitalWrite(buzzer,LOW);
+    delay(500);
+  }
+
+  lcd.clear();
+  lcd.print(" HAPPY  JOURNEY ");
+  delay(1500);
+}
